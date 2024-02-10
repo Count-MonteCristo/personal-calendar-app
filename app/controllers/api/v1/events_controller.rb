@@ -14,12 +14,6 @@ class Api::V1::EventsController < ApplicationController
       render json: @event
     end
   
-    # GET /events/new
-    # Initializes a new event object.
-    def new
-      @event = Event.new
-    end
-  
     # POST /events
     # Creates a new event based on the parameters received.
     def create
@@ -31,11 +25,6 @@ class Api::V1::EventsController < ApplicationController
       else
         render json: @event.errors, status: :unprocessable_entity
       end
-    end
-  
-    # GET /events/1/edit
-    # Finds a specific event by ID for editing.
-    def edit
     end
   
     # PATCH/PUT /events/1
