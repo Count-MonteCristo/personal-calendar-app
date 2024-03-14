@@ -51,5 +51,6 @@ module PersonalCalendarApp
 
     config.middleware.use ActionDispatch::Cookies
     config.middleware.use ActionDispatch::Session::CookieStore, same_site: :None, secure: true
+    config.action_controller.forgery_protection_origin_check = false
   end
 end
