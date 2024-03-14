@@ -14,6 +14,19 @@ require "action_view/railtie"
 require "action_cable/engine"
 # require "rails/test_unit/railtie"
 
+require "rack/session/abstract/id"
+
+module SendSessionForLocalHost
+  private
+  def security_matches?(request,options)
+    return true unless options[:secure]
+    request.ssl? || request.host == "localhost"
+  end 
+end
+class Rack::Session::Abstract::Persisted
+  prepend SendSessionForLocalHost
+end
+
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
@@ -37,6 +50,7 @@ module PersonalCalendarApp
     config.api_only = true
 
     config.middleware.use ActionDispatch::Cookies
-    config.middleware.use ActionDispatch::Session::CookieStore
+    config.middleware.use ActionDispatch::Session::CookieStore, same_site: :None, secure: true
+    config.action_controller.forgery_protection_origin_check = false
   end
 end

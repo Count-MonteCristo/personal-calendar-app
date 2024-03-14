@@ -1,24 +1,30 @@
 class Api::V1::EventsController < ApplicationController
+    include AuthenticationCheck
+    before_action :is_user_logged_in
     before_action :set_event, only: [:show, :edit, :update, :destroy]
-  
+
     # GET /events
     # Retrieves all events and renders them as JSON.
     def index
-      @events = Event.all
+      @events = current_user.events
       render json: @events
     end
   
     # GET /events/1
     # Retrieves a specific event by ID and renders it as JSON.
     def show
-      render json: @event
+      if @event
+        render json: @event
+      else
+        render json: { error: 'Event not found or unauthorized' }, status: :unauthorized
+      end
     end
   
     # POST /events
     # Creates a new event based on the parameters received.
     def create
-      @event = Event.new(event_params)
-  
+      @event = current_user.events.build(event_params)
+        
       # Renders the created event as JSON if successful, or renders the errors if unsuccessful.
       if @event.save
         render json: @event, status: :created
@@ -47,11 +53,11 @@ class Api::V1::EventsController < ApplicationController
     private
       # Use callbacks to share common setup or constraints between actions.
       def set_event
-        @event = Event.find(params[:id])
+        @event = current_user.events.find_by(id: params[:id])
       end
   
       # Only allow a list of trusted parameters through.
       def event_params
-        params.require(:event).permit(:title, :date, :time, :location, :description, :user_id)
+        params.require(:event).permit(:title, :date, :time, :location, :description,)
       end    
   end

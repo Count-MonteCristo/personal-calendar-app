@@ -1,19 +1,20 @@
 class Users::SessionsController < Devise::SessionsController
   respond_to :json
+  skip_forgery_protection only: [:create]
+
 
   def destroy 
-    session[:user_id] = nil
+    @logged_in_user = current_user
+    super 
   end
 
   private
 
-  # Override verify_signed_out_user method
-  def verify_signed_out_user
-    # Do nothing to skip the verification
-  end
-
   def respond_with(resource, _opts = {})
     if !resource.id.nil?
+      cookies["CSRF-TOKEN"] = { value: form_authenticity_token, secure: true, same_site: :None }
+      response.set_header('X-CSRF-Token', form_authenticity_token)
+
       render json: { message: 'You are logged in.' }, status: :created
     else
       render json: { message: 'Authentication failed.'}, status: :unauthorized
